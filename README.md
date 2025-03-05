@@ -1,114 +1,100 @@
-# my-operator
-// TODO(user): Add simple overview of use/purpose
+# PodMailer Operator
 
-## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+## Overview
+PodMailer is a Kubernetes operator that monitors pods in specified namespaces and sends email notifications when pods are down. It provides an easy way to set up email alerts for your Kubernetes cluster's pod health.
 
-## Getting Started
+## Features
+- Monitor pods in multiple namespaces
+- Send email notifications when pods are down
+- Configurable check intervals
+- Support for SMTP email servers
+- Easy to deploy and configure
+
+## Quick Start
 
 ### Prerequisites
-- go version v1.22.0+
-- docker version 17.03+.
-- kubectl version v1.11.3+.
-- Access to a Kubernetes v1.11.3+ cluster.
+- Kubernetes cluster v1.11.3+
+- kubectl configured to access your cluster
+- SMTP server details for sending emails
 
-### To Deploy on the cluster
-**Build and push your image to the location specified by `IMG`:**
+### Installation
 
+1. Install the operator:
 ```sh
-make docker-build docker-push IMG=<some-registry>/my-operator:tag
+kubectl apply -f https://raw.githubusercontent.com/natigmaderov/podmailer/main/dist/install.yaml
 ```
 
-**NOTE:** This image ought to be published in the personal registry you specified.
-And it is required to have access to pull the image from the working environment.
-Make sure you have the proper permission to the registry if the above commands don’t work.
-
-**Install the CRDs into the cluster:**
-
-```sh
-make install
+2. Create a PodMailer custom resource (replace the values with your configuration):
+```yaml
+apiVersion: podmailer.podmailer.io/v1alpha1
+kind: PodMailer
+metadata:
+  name: podmailer-sample
+spec:
+  checkInterval: 60  # Check interval in seconds
+  namespaces:
+    - default
+    - kube-system
+  recipients:
+    - user@example.com
+  smtp:
+    server: smtp.example.com
+    port: 465
+    username: your-username
+    password: your-password
+    fromEmail: alerts@example.com
 ```
 
-**Deploy the Manager to the cluster with the image specified by `IMG`:**
-
+Save this as `podmailer.yaml` and apply:
 ```sh
-make deploy IMG=<some-registry>/my-operator:tag
+kubectl apply -f podmailer.yaml
 ```
 
-> **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin
-privileges or be logged in as admin.
+## Configuration
 
-**Create instances of your solution**
-You can apply the samples (examples) from the config/sample:
+### PodMailer Spec
+| Field | Description | Type | Required |
+|-------|-------------|------|----------|
+| checkInterval | Interval in seconds between pod checks | int | Yes |
+| namespaces | List of namespaces to monitor | []string | Yes |
+| recipients | List of email addresses to receive notifications | []string | Yes |
+| smtp.server | SMTP server address | string | Yes |
+| smtp.port | SMTP server port (usually 465 or 587) | int | Yes |
+| smtp.username | SMTP authentication username | string | Yes |
+| smtp.password | SMTP authentication password | string | Yes |
+| smtp.fromEmail | Email address to send notifications from | string | Yes |
+
+## Uninstallation
+
+To remove the operator and its resources:
 
 ```sh
-kubectl apply -k config/samples/
+kubectl delete -f https://raw.githubusercontent.com/natigmaderov/podmailer/main/dist/install.yaml
 ```
 
->**NOTE**: Ensure that the samples has default values to test it out.
+## Building from Source
 
-### To Uninstall
-**Delete the instances (CRs) from the cluster:**
+If you want to build the operator from source:
 
+1. Clone the repository:
 ```sh
-kubectl delete -k config/samples/
+git clone https://github.com/natigmaderov/podmailer.git
+cd podmailer
 ```
 
-**Delete the APIs(CRDs) from the cluster:**
-
+2. Build and push the operator image:
 ```sh
-make uninstall
+make docker-build docker-push IMG=<your-registry>/podmailer:tag
 ```
 
-**UnDeploy the controller from the cluster:**
-
+3. Deploy to your cluster:
 ```sh
-make undeploy
-```
-
-## Project Distribution
-
-Following are the steps to build the installer and distribute this project to users.
-
-1. Build the installer for the image built and published in the registry:
-
-```sh
-make build-installer IMG=<some-registry>/my-operator:tag
-```
-
-NOTE: The makefile target mentioned above generates an 'install.yaml'
-file in the dist directory. This file contains all the resources built
-with Kustomize, which are necessary to install this project without
-its dependencies.
-
-2. Using the installer
-
-Users can just run kubectl apply -f <URL for YAML BUNDLE> to install the project, i.e.:
-
-```sh
-kubectl apply -f https://raw.githubusercontent.com/<org>/my-operator/<tag or branch>/dist/install.yaml
+make deploy IMG=<your-registry>/podmailer:tag
 ```
 
 ## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
-
-**NOTE:** Run `make help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
-
-Copyright 2025.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Licensed under the Apache License, Version 2.0. See LICENSE file for details.
 
