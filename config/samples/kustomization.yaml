@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- podmailer_v1alpha1_podmailer.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

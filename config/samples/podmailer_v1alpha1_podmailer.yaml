@@ -1,0 +1,21 @@
+apiVersion: podmailer.podmailer.io/v1alpha1
+kind: PodMailer
+metadata:
+  labels:
+    app.kubernetes.io/name: podmailer
+    app.kubernetes.io/instance: podmailer-sample
+  name: podmailer-sample
+spec:
+  checkInterval: 60
+  namespaces:
+    - default
+    - kube-system
+  recipients:
+    - example@example.com
+    - example2@example.com
+  smtp:
+    server: xxxxx
+    port: xxxx
+    username: xxxx
+    password: xxxx
+    fromEmail: xxxx
